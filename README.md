@@ -1,6 +1,6 @@
 # Etch
 Package etch provides a simple facility to write graphical regression tests.
-The Assertf function provides the common case functionality. Provide it the
+The `Assertf` function provides the common case functionality. Provide it the
 test variable, along the image you have and want, and it will fail your case
 if want != have.
 
@@ -31,8 +31,8 @@ This means if the frame displays `^a\nb\nc$` and `b\n` is deleted, the user woul
 
 We can programatically check for any defect as long as we know how to reproduce it. 
 
-# Step 1
-Find the reproduction. In this case I also found steps that generate the expected result.
+# Step 1: Find Reproduction and Expected Result
+Find the reproduction. In this case I also found steps that generate the expected result. You can also use a cached expected result from a previously known good configuration.
 
 - Insert the multi-line text containing no trailing newline (good: insert a trailing newline)
 
@@ -50,7 +50,7 @@ Above you can see the result of the middle line's deletion for both sessions. Th
 did not have the trailing newline did not clean up the last line after copying it up toward the
 top of the frame
 
-# Step 2
+# Step 2: Create Images
 
 Create two images
 
@@ -88,6 +88,7 @@ state and `have` will be an image with the _defective_ state
 	etch.Assertf(t, have, want, "delta.png", "TestDeleteLastLineNoNL: failed")
 ```
 
+# Step 4: Go Test
 
 We run `go test`
 
@@ -105,7 +106,7 @@ We can look at the image to see what went wrong: `delta.png`
 
 Although it looks obvious, remember that this test would fail if any of the pixels differ. It's not easy to compare images visually, and you shouldn't avoid automating tests for it. Automating the tests helps prevent regressions from going undetected and speeds up the edit/compile/test cycle. 
 
-# Step 3: Apply the Fix
+# Step 5: Apply the Fix
 
 ```
 	f.Draw(f.b, image.Rect(pt0.X, pt0.Y, pt0.X+(f.r.Max.X-pt1.X), q0), f.b, pt1, f.op)
