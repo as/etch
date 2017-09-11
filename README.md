@@ -1,61 +1,58 @@
 # Etch
 Package etch provides a simple facility to write graphical regression tests.
-The Assertf function provides the common case functionality. Provide it the
+The `Assertf` function provides the common case functionality. Provide it the
 test variable, along the image you have and want, and it will fail your case
-if want != have.
+if `have`!= `want`.
 
-Optionally, provide a filename to store the graphical difference as an
-uncompressed PNG if the test fails.
+# Synopsis
 
-The Extra data in the image (have but don't want) is represented in Red. The
-Missing data (want, but dont have) is represented in Blue. These can be
-changed by modifying Extra and Missing package variables
+```
+have = image.NewRGBA(r)
+want = image.NewRGBA(r)
 
-To simplify the package, the alpha channel is ignored. A color triplet is
-equal to another if it's R,G,B values are identical.
+// fail the test if the images differ, and write the delta to a png
+etch.Assertf(t, have, want, "delta.png", "TestName: failed")
+```
 
-The foreground variable, FG, is what to paint on the delta image if two
-pixels match The background variable, BG, is the common background color
-between two images
+# Visualize
 
-If two pixels at the same (x,y) coordinate don't match, the ambiguity is
-resolved by comparing the image you have's color value at that coordinate to
-the background color. If the color matches, the pixel you have is an extra.
-Otherwise, it's missing.
+Optionally, provide a filename to store the graphical difference as an uncompressed PNG if the test fails.
+
+![paint](img/delta.png)
+
+The `Extra` data in the image (have but don't want) is represented in `Red`.
+The `Missing` data (`want`, but dont `have`) is represented in `Blue`. 
+These can be changed by modifying `Extra` and `Missing` package variables
 
 # Example
 
-I observed a bug in A where the text on the last line wasn't
-cleaned up unless that last line ended in a newline character. This
-means if the frame displayed `^x\ny\nabcd$` and `y\n` is deleted, the
-user would see `^x\nabcd\nabcd`. Nasty.
+I observed a bug in A where the text on the last line wasn't cleaned up unless that last line ended in a newline character.
+This means if the frame displays `^a\nb\nc$` and `b\n` is deleted, the user would see `^a\nc\nc$`. Nasty.
 
-There's no way to programatically check for this defect. Just kidding,
-we can programatically check for any defect as long as we know how
-to reproduce it. 
+We can programatically check for any defect as long as we know how to reproduce it. 
 
-# Step 1
+# Step 1: Find Reproduction and Expected Result
+Find the reproduction. In this case I also found steps that generate the expected result. You can also use a cached expected result from a previously known good configuration.
 
-Insert the text
-![paint](img/bug1.png)
+- Insert the multi-line text containing no trailing newline (good: insert a trailing newline)
 
-# Step 2
+![paint](img/1.png)
 
-Select the region
-![paint](img/bug2.png)
+- Select any line but the last 
 
-# Step 3
+![paint](img/2.png)
 
-Delete the region
-![paint](img/bug3.png)
+- Delete the selection
 
-Great, we know how to do it manually, now let's do it automatically.
-If this is second nature to you, I'm not surprised. But the reason
-I made this example so elaborate was because I've personally witnessed
-a private email thread go on for 4 months on how to do something like
-this in c# and c++. The result: no-op. I bet it's still done manually.
+![paint](img/3.png)
 
-Here's the only thing we need to do:
+Above you can see the result of the middle line's deletion for both sessions. The window that
+did not have the trailing newline did not clean up the last line after copying it up toward the
+top of the frame
+
+# Step 2: Create Images
+
+Create two images
 
 ```
 	have = image.NewRGBA(r)
@@ -63,11 +60,11 @@ Here's the only thing we need to do:
 ```
 
 Now for the test case specific stuff. Your steps will replace mine
-below depending on what you're actually doing to the images. The
-frame draws on them directly, so we really don't care about
+below depending on what you're actually doing to the images. In my case
+the frame draws on them directly, so we really don't care about
 its inner workings too much, just that there's a bug and we're
-going to test for its existence using these two images: have
-and want.
+going to test for its existence using these two images: `have`
+and `want`.
 
 
 ```
@@ -84,13 +81,14 @@ and want.
 	w.Delete(5, 10)
 ```
 
-By this point, `want` will be an image with the defect-free
-state and `have` will be an image with the defective state
+By this point, `want` will be an image with the _defect-free_
+state and `have` will be an image with the _defective_ state
 
 ```
 	etch.Assertf(t, have, want, "delta.png", "TestDeleteLastLineNoNL: failed")
 ```
 
+# Step 4: Go Test
 
 We run `go test`
 
@@ -102,9 +100,13 @@ exit status 1
 FAIL	github.com/as/frame	0.092s
 ```
 
-We can look at the image to see what went wrong: delta.png
+We can look at the image to see what went wrong: `delta.png`
 
 ![paint](img/delta.png)
+
+Although it looks obvious, remember that this test would fail if any of the pixels differ. It's not easy to compare images visually, and you shouldn't avoid automating tests for it. Automating the tests helps prevent regressions from going undetected and speeds up the edit/compile/test cycle. 
+
+# Step 5: Apply the Fix
 
 ```
 	f.Draw(f.b, image.Rect(pt0.X, pt0.Y, pt0.X+(f.r.Max.X-pt1.X), q0), f.b, pt1, f.op)
@@ -115,7 +117,8 @@ We can look at the image to see what went wrong: delta.png
 
 The bug is the commented line above. Once the comment is removed, the test passes. Because `go test`
 can be run automatically on file changes, this eliminates the manual step of checking the image. The
-test passes once have and want are the same image.
+test passes once `have` and `want` are the same, and when they're not, just open the delta in an image
+viewer to see what went wrong.
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/as/etch)](https://goreportcard.com/badge/github.com/as/etch)
 
