@@ -2,7 +2,7 @@
 Package etch provides a simple facility to write graphical regression tests.
 The `Assertf` function provides the common case functionality. Provide it the
 test variable, along the image you have and want, and it will fail your case
-if want != have.
+if `have`!= `want`.
 
 # Synopsis
 
