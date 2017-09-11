@@ -79,8 +79,8 @@ func Report(have, want, delta image.Image) image.Image {
 	s := []string{"Have", "Want", "Delta"}
 	for i, src := range []image.Image{have, want, delta} {
 		drawBorder(rep, r.Inset(-1), Black, image.ZP, 2)
-		draw.Draw(rep, r, src, src.Bounds().Min, draw.Src)
 		font.StringNBG(rep, image.Pt(r.Min.X+5, r.Max.Y-25), White, image.ZP, ft, []byte(s[i]))
+		draw.Draw(rep, r, src, src.Bounds().Min, draw.Src)
 		r.Min.X += want.Bounds().Dx() + 5
 	}
 	r.Min.X -= want.Bounds().Dx() + 5
@@ -99,22 +99,24 @@ func Report(have, want, delta image.Image) image.Image {
 // or missing respectively.
 func Delta(a, b image.Image) (delta *image.RGBA, ok bool) {
 	delta = image.NewRGBA(a.Bounds())
+	dirty :=false 
 	for y := a.Bounds().Min.Y; y < a.Bounds().Max.Y; y++ {
 		for x := a.Bounds().Min.X; x < a.Bounds().Max.X; x++ {
 			h := a.At(x, y)
 			w := b.At(x, y)
 			if EqualRGB(h, w) {
-				//delta.Set(x, y, FG)
+				delta.Set(x, y, FG)
 				continue
 			}
+			dirty=true
 			if EqualRGB(h, BG) {
-				delta.Set(x, y, Missing)
+				delta.Set(x, y, color.RGBA{0, 0, 255, 255})
 			} else {
-				delta.Set(x, y, Extra)
+				delta.Set(x, y, color.RGBA{255, 0, 0, 255})
 			}
 		}
 	}
-	return delta, delta.Opaque()
+	return delta, !dirty
 }
 
 // EqualRGB returns true if and only if
