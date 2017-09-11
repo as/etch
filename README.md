@@ -4,16 +4,25 @@ The Assertf function provides the common case functionality. Provide it the
 test variable, along the image you have and want, and it will fail your case
 if want != have.
 
+# Synopsis
+
+```
+have = image.NewRGBA(r)
+want = image.NewRGBA(r)
+
+// fail the test if the images differ, and write the delta to a png
+etch.Assertf(t, have, want, "delta.png", "TestName: failed")
+```
+
 # Visualize
 
-Optionally, provide a filename to store the graphical difference as an
-uncompressed PNG if the test fails.
+Optionally, provide a filename to store the graphical difference as an uncompressed PNG if the test fails.
 
 ![paint](img/delta.png)
 
-The Extra data in the image (have but don't want) is represented in Red. The
-Missing data (want, but dont have) is represented in Blue. These can be
-changed by modifying Extra and Missing package variables
+The `Extra` data in the image (have but don't want) is represented in `Red`.
+The `Missing` data (`want`, but dont `have`) is represented in `Blue`. 
+These can be changed by modifying `Extra` and `Missing` package variables
 
 # Example
 
@@ -43,7 +52,7 @@ top of the frame
 
 # Step 2
 
-Here's the only thing we need to do: create two images
+Create two images
 
 ```
 	have = image.NewRGBA(r)
@@ -54,8 +63,8 @@ Now for the test case specific stuff. Your steps will replace mine
 below depending on what you're actually doing to the images. In my case
 the frame draws on them directly, so we really don't care about
 its inner workings too much, just that there's a bug and we're
-going to test for its existence using these two images: have
-and want.
+going to test for its existence using these two images: `have`
+and `want`.
 
 
 ```
@@ -72,8 +81,8 @@ and want.
 	w.Delete(5, 10)
 ```
 
-By this point, `want` will be an image with the defect-free
-state and `have` will be an image with the defective state
+By this point, `want` will be an image with the _defect-free_
+state and `have` will be an image with the _defective_ state
 
 ```
 	etch.Assertf(t, have, want, "delta.png", "TestDeleteLastLineNoNL: failed")
@@ -90,9 +99,11 @@ exit status 1
 FAIL	github.com/as/frame	0.092s
 ```
 
-We can look at the image to see what went wrong: delta.png
+We can look at the image to see what went wrong: `delta.png`
 
 ![paint](img/delta.png)
+
+Although it looks obvious, remember that this test would fail if any of the pixels differ. It's not easy to compare images visually, and you shouldn't avoid automating tests for it. Automating the tests helps prevent regressions from going undetected and speeds up the edit/compile/test cycle. 
 
 # Step 3: Apply the Fix
 
