@@ -1,5 +1,5 @@
 # Etch
-
+[![Go Report Card](https://goreportcard.com/badge/github.com/as/etch)](https://goreportcard.com/badge/github.com/as/etch)
 
 Package etch provides a simple facility to write graphical regression tests.
 The `Assert` function handles the common case. Give it the test variable, the
