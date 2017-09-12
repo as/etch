@@ -51,9 +51,24 @@ var (
 	Missing = Blue
 )
 
-// Assertf fails a test if have != want, with an optional filename to write the delta
-// image. By default, the pixels in blue represent the missing part of the image and
-// the pixels in red represent unwanted additions.
+// Assert compares two test images and fails the provided test if the
+// images differ at any pixel(x,y). It saves the delta as a png to
+// the given filename (if set) and provides the path to that image in an
+// error string upon failure.
+func Assert(t *testing.T, have, want image.Image, filename string){
+	delta, ok := Delta(have, want)
+	if ok {
+		return
+	}
+	if filename != "" {
+		t.Logf("delta: %s", filename)
+		WriteFile(t, filename, Report(have, want, delta))
+	}
+	t.Fail()
+}
+
+// Assertf is like assert, except it logs a custom message with a format string
+// and interface parameter list (like fmt.Printf)
 func Assertf(t *testing.T, have, want image.Image, filename string, fm string, i ...interface{}) {
 	delta, ok := Delta(have, want)
 	if ok {
