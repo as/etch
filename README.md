@@ -1,8 +1,9 @@
 # Etch
+[![Go Report Card](https://goreportcard.com/badge/github.com/as/etch)](https://goreportcard.com/badge/github.com/as/etch)
+
 Package etch provides a simple facility to write graphical regression tests.
-The `Assertf` function provides the common case functionality. Provide it the
-test variable, along the image you have and want, and it will fail your case
-if `have`!= `want`.
+The `Assert` function handles the common case. Give it the test variable, the
+images you have and want, and it will fail your case if they differ.
 
 # Synopsis
 
@@ -11,7 +12,7 @@ have = image.NewRGBA(r)
 want = image.NewRGBA(r)
 
 // fail the test if the images differ, and write the delta to a png
-etch.Assertf(t, have, want, "delta.png", "TestName: failed")
+etch.Assert(t, have, want, "Test.png")
 ```
 
 # Visualize
@@ -85,7 +86,7 @@ By this point, `want` will be an image with the _defect-free_
 state and `have` will be an image with the _defective_ state
 
 ```
-	etch.Assertf(t, have, want, "delta.png", "TestDeleteLastLineNoNL: failed")
+	etch.Assert(t, have, want, "TestDeleteLastLineNoNL.png")
 ```
 
 # Step 4: Go Test
@@ -94,13 +95,13 @@ We run `go test`
 
 ```
 --- FAIL: TestDeleteLastLineNoNL (0.03s)
-	etch.go:62: TestDeleteLastLineNoNL: failed
+	etch.go:64: delta: TestDeleteLastLineNoNL.png
 FAIL
 exit status 1
-FAIL	github.com/as/frame	0.092s
+FAIL	github.com/as/frame	0.125s
 ```
 
-We can look at the image to see what went wrong: `delta.png`
+We can look at the image to see what went wrong: `TestDeleteLastLineNoNL.png`
 
 ![paint](img/delta.png)
 
@@ -120,7 +121,6 @@ can be run automatically on file changes, this eliminates the manual step of che
 test passes once `have` and `want` are the same, and when they're not, just open the delta in an image
 viewer to see what went wrong.
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/as/etch)](https://goreportcard.com/badge/github.com/as/etch)
 
 
 
