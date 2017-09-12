@@ -13,7 +13,7 @@
 // To simplify the package, the alpha channel is ignored. A color triplet
 // is equal to another if it's R,G,B values are identical.
 //
-// The foreground variable, FG, is what to paint on the delta image if two pixels match
+// The foreground variable, fg, is what to paint on the delta image if two pixels match
 // The background variable, BG, is the common background color between two images
 //
 // If two pixels at the same (x,y) coordinate don't match, the ambiguity is resolved
@@ -38,6 +38,7 @@ var (
 	ft  = font.NewGoMono(20)
 	sft = font.NewBasic(10)
 
+	// Colors from as/frame
 	Red   = image.NewUniform(color.RGBA{255, 0, 0, 255})
 	Blue  = image.NewUniform(color.RGBA{0, 0, 255, 255})
 	Black = image.NewUniform(color.RGBA{0, 0, 0, 255})
@@ -45,17 +46,19 @@ var (
 	Gray  = image.NewUniform(color.RGBA{33, 33, 33, 255})
 	Peach = image.NewUniform(color.RGBA{255, 248, 232, 255})
 
-	FG      = White
+	// Defaults used by this package
+	// BG should be the similar background color between two images
 	BG      = Peach
 	Extra   = Red
 	Missing = Blue
+	fg      = White // Always opaque white
 )
 
 // Assert compares two test images and fails the provided test if the
 // images differ at any pixel(x,y). It saves the delta as a png to
 // the given filename (if set) and provides the path to that image in an
 // error string upon failure.
-func Assert(t *testing.T, have, want image.Image, filename string){
+func Assert(t *testing.T, have, want image.Image, filename string) {
 	delta, ok := Delta(have, want)
 	if ok {
 		return
@@ -108,22 +111,22 @@ func Report(have, want, delta image.Image) image.Image {
 }
 
 // Delta computes a difference between image a and b by
-// comparing each pixel to the FG and BG colors. If a pixel
-// in a and b are equal, the delta pixel is FG. Otherwise
+// comparing each pixel to the fg and BG colors. If a pixel
+// in a and b are equal, the delta pixel is fg. Otherwise
 // the pixel is either red or blue depending if its extra
 // or missing respectively.
 func Delta(a, b image.Image) (delta *image.RGBA, ok bool) {
 	delta = image.NewRGBA(a.Bounds())
-	dirty :=false 
+	dirty := false
 	for y := a.Bounds().Min.Y; y < a.Bounds().Max.Y; y++ {
 		for x := a.Bounds().Min.X; x < a.Bounds().Max.X; x++ {
 			h := a.At(x, y)
 			w := b.At(x, y)
 			if EqualRGB(h, w) {
-				delta.Set(x, y, FG)
+				delta.Set(x, y, fg)
 				continue
 			}
-			dirty=true
+			dirty = true
 			if EqualRGB(h, BG) {
 				delta.Set(x, y, color.RGBA{0, 0, 255, 255})
 			} else {
@@ -142,6 +145,7 @@ func EqualRGB(c0, c1 color.Color) bool {
 	return r0 == r1 && g0 == g1 && b0 == b1
 }
 
+// WriteFile writes the input img to the names file and fails the test.
 func WriteFile(t *testing.T, file string, img image.Image) {
 	fd, err := os.Create(file)
 	if err != nil {
