@@ -70,6 +70,12 @@ func Assert(t *testing.T, have, want image.Image, filename string) {
 	t.Fail()
 }
 
+// AssertFile is like assert, but reads the wanted result from the named file
+func AssertFile(t *testing.T, have image.Image, wantfile string, filename string) {
+	want := ReadFile(t, wantfile)
+	Assert(t, have, want, filename)
+}
+
 // Assertf is like assert, except it logs a custom message with a format string
 // and interface parameter list (like fmt.Printf)
 func Assertf(t *testing.T, have, want image.Image, filename string, fm string, i ...interface{}) {
@@ -158,6 +164,23 @@ func WriteFile(t *testing.T, file string, img image.Image) {
 		t.Log(err)
 		t.FailNow()
 	}
+}
+
+// ReadFile reads in the named file and returns it as an image.Image. The supported
+// format is an uncompressed PNG.
+func ReadFile(t *testing.T, file string) (img image.Image) {
+	fd, err := os.Open(file)
+	if err != nil {
+		t.Log(err)
+		t.FailNow()
+	}
+	defer fd.Close()
+	img, err = png.Decode(fd)
+	if err != nil {
+		t.Log(err)
+		t.FailNow()
+	}
+	return img
 }
 
 func drawBorder(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point, thick int) {
