@@ -24,7 +24,7 @@
 package etch
 
 import (
-	"github.com/as/frame/font"
+	"github.com/as/font"
 	"image"
 	"image/color"
 	"image/draw"
@@ -36,7 +36,7 @@ import (
 var (
 	enc = png.Encoder{CompressionLevel: png.NoCompression}
 	ft  = font.NewGoMono(20)
-	sft = font.NewBasic(10)
+	sft = font.NewGoMono(10)
 
 	// Colors from as/frame
 	Red   = image.NewUniform(color.RGBA{255, 0, 0, 255})
